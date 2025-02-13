@@ -1,0 +1,12 @@
+# Node.js dependencies
+node_modules/
+
+# Truffle build artifacts
+build/
+
+# Environment variables
+.env
+
+# OS-specific files
+.DS_Store
+Thumbs.db
