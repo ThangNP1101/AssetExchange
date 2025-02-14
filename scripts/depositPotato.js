@@ -1,11 +1,10 @@
-require("dotenv").config(); // Đọc biến môi trường từ file .env
+require("dotenv").config();
 
 const Web3 = require("web3").Web3;
 const web3 = new Web3(process.env.API_URL);
 
-const { CONTRACT_ADDRESS, USER_ADDRESS } = require("../constant"); // Import địa chỉ contract và private key của user
+const { CONTRACT_ADDRESS, USER_ADDRESS } = require("../constant");
 
-// ABI của contract (cập nhật với hàm depositPotato)
 const contractABI = [
   {
     inputs: [
@@ -29,7 +28,6 @@ const contractABI = [
 
 async function depositPotato() {
   try {
-    // Lấy tham số từ dòng lệnh
     const userAddressIndex = process.argv.indexOf("--userAddress") + 1;
     const amountIndex = process.argv.indexOf("--amount") + 1;
 
@@ -47,17 +45,14 @@ async function depositPotato() {
 
     console.log(`Depositing ${amount} tokens from ${tokenAddress}...`);
 
-    // Kết nối đến contract
     const contractAddress = CONTRACT_ADDRESS.AssertExchange.address;
     const contractInstance = new web3.eth.Contract(
       contractABI,
       contractAddress
     );
 
-    // Lấy tài khoản gửi
     const sender = process.argv[userAddressIndex] || USER_ADDRESS.user1.address;
 
-    // Kiểm tra allowance trước khi gửi
     const erc20ABI = [
       {
         constant: false,
@@ -85,7 +80,6 @@ async function depositPotato() {
 
     console.log("Approval successful. Proceeding with deposit...");
 
-    // Gửi transaction gọi hàm depositPotato
     const tx = await contractInstance.methods
       .depositPotato(tokenAddress, amount)
       .send({ from: sender });
@@ -96,5 +90,4 @@ async function depositPotato() {
   }
 }
 
-// Chạy script
 depositPotato();

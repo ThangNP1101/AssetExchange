@@ -1,8 +1,8 @@
 # Node.js dependencies
-node_modules/
+/node_modules/
 
 # Truffle build artifacts
-build/
+/build/
 
 # Environment variables
 .env
@@ -10,3 +10,9 @@ build/
 # OS-specific files
 .DS_Store
 Thumbs.db
+
+package-lock.json
+
+package.json
+
+/test/

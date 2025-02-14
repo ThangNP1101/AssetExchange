@@ -1,4 +1,4 @@
-require("dotenv").config(); // Đọc biến môi trường từ file .env
+require("dotenv").config();
 
 const Web3 = require("web3").Web3;
 const web3 = new Web3(process.env.API_URL);
@@ -29,11 +29,9 @@ async function depositETH() {
         "User address not provided. Use --userAddress <Ethereum_Address>"
       );
     }
-
-    // Chuyển đổi số ETH sang Wei
     const depositAmount = web3.utils.toWei(process.argv[amountIndex], "ether");
 
-    const contractAddress = CONTRACT_ADDRESS.AssertExchange.address; // Thay Token21 bằng contract cần gửi ETH
+    const contractAddress = CONTRACT_ADDRESS.AssertExchange.address;
     const userAddress = process.argv[addressIndex];
 
     const contractInstance = new web3.eth.Contract(
@@ -41,11 +39,10 @@ async function depositETH() {
       contractAddress
     );
 
-    // Gửi giao dịch depositETH
     const transaction = await contractInstance.methods.depositETH().send({
       from: userAddress,
       value: depositAmount,
-      gas: 500000, // Giới hạn gas
+      gas: 500000,
     });
 
     console.log(`Deposit successful! Sent ${process.argv[amountIndex]} ETH`);

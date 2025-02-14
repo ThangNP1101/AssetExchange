@@ -1,11 +1,10 @@
-require("dotenv").config(); // Đọc biến môi trường từ file .env
+require("dotenv").config();
 
 const Web3 = require("web3").Web3;
 const web3 = new Web3(process.env.API_URL);
 
-const { CONTRACT_ADDRESS, USER_ADDRESS } = require("../constant"); // Đảm bảo bạn có địa chỉ contract
+const { CONTRACT_ADDRESS, USER_ADDRESS } = require("../constant");
 
-// ABI của AssetExchange (chứa withdrawETH & balanceETH)
 const assetExchangeABI = [
   {
     constant: false,
@@ -27,7 +26,6 @@ const assetExchangeABI = [
 
 async function withdrawETH() {
   try {
-    // Lấy số ETH muốn rút từ command line
     const addressIndex = process.argv.indexOf("--userAddress") + 1;
     const amountIndex = process.argv.indexOf("--amount") + 1;
 
@@ -49,13 +47,11 @@ async function withdrawETH() {
       `🔹 Withdrawing ${amountInEth} ETH from address: ${userAddress}...`
     );
 
-    // Kết nối đến contract
     const assetExchangeContract = new web3.eth.Contract(
       assetExchangeABI,
       CONTRACT_ADDRESS.AssertExchange.address
     );
 
-    // Kiểm tra số dư trước khi rút
     const balanceWei = await assetExchangeContract.methods
       .balanceETH(userAddress)
       .call();
@@ -63,7 +59,6 @@ async function withdrawETH() {
       throw new Error("Insufficient ETH balance!");
     }
 
-    // 📌 Gửi giao dịch rút ETH
     await assetExchangeContract.methods.withdrawETH(amountInWei).send({
       from: userAddress,
       gas: 500000,

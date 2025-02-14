@@ -1,11 +1,10 @@
-require("dotenv").config(); // Đọc biến môi trường từ file .env
+require("dotenv").config();
 
 const Web3 = require("web3").Web3;
 const web3 = new Web3(process.env.API_URL);
 
-const { CONTRACT_ADDRESS } = require("../constant"); // Import địa chỉ contract
+const { CONTRACT_ADDRESS } = require("../constant");
 
-// ABI của contract (chứa balance20)
 const contractABI = [
   {
     inputs: [
@@ -21,7 +20,6 @@ const contractABI = [
 
 async function checkDepositedPotato() {
   try {
-    // Lấy tham số từ dòng lệnh
     const userAddressIndex = process.argv.indexOf("--userAddress") + 1;
 
     if (userAddressIndex === 0 || !process.argv[userAddressIndex]) {
@@ -37,13 +35,11 @@ async function checkDepositedPotato() {
       `Checking deposited balance for user ${userAddress} and token ${tokenAddress}...`
     );
 
-    // Kết nối đến contract
     const contractInstance = new web3.eth.Contract(
       contractABI,
       CONTRACT_ADDRESS.AssertExchange.address
     );
 
-    // Gọi hàm balance20 để lấy số dư
     const balanceWei = await contractInstance.methods
       .balance20(tokenAddress, userAddress)
       .call();
@@ -57,5 +53,4 @@ async function checkDepositedPotato() {
   }
 }
 
-// Chạy script
 checkDepositedPotato();

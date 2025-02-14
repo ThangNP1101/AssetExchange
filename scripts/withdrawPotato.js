@@ -1,4 +1,4 @@
-require("dotenv").config(); // Đọc biến môi trường từ file .env
+require("dotenv").config();
 
 const Web3 = require("web3").Web3;
 const web3 = new Web3(process.env.API_URL);
@@ -32,9 +32,9 @@ const contractABI = [
 
 async function withdrawERC20() {
   try {
-    const userAddress = USER_ADDRESS.user3.address; // Chọn account người dùng
-    const tokenAddress = CONTRACT_ADDRESS.Token21.address; // Lấy địa chỉ token từ command line
-    const amountIndex = process.argv.indexOf("--amount") + 1; // Lấy số lượng token từ command line
+    const userAddress = USER_ADDRESS.user3.address;
+    const tokenAddress = CONTRACT_ADDRESS.Token21.address;
+    const amountIndex = process.argv.indexOf("--amount") + 1;
     if (!tokenAddress || !process.argv[amountIndex]) {
       throw new Error(
         "Token address or amount not provided. Use --amount <AMOUNT>"
@@ -42,19 +42,17 @@ async function withdrawERC20() {
     }
 
     const amount = process.argv[amountIndex];
-    const amountInWei = web3.utils.toWei(amount, "ether"); // Chuyển số lượng thành Wei nếu cần
+    const amountInWei = web3.utils.toWei(amount, "ether");
 
     console.log(
       `🔹 Withdrawing ${amount} tokens from address: ${userAddress}...`
     );
 
-    // Kết nối đến contract
     const contract = new web3.eth.Contract(
       contractABI,
       CONTRACT_ADDRESS.AssertExchange.address
     );
 
-    // Kiểm tra số dư trước khi rút
     const balanceWei = await contract.methods
       .balance20(tokenAddress, userAddress)
       .call();
@@ -62,7 +60,6 @@ async function withdrawERC20() {
       throw new Error("Insufficient token balance!");
     }
 
-    // 📌 Gửi giao dịch rút token
     await contract.methods.withdrawERC20(tokenAddress, amountInWei).send({
       from: userAddress,
       gas: 500000,
@@ -74,5 +71,4 @@ async function withdrawERC20() {
   }
 }
 
-// Chạy script
 withdrawERC20();

@@ -1,11 +1,10 @@
-require("dotenv").config(); // Đọc biến môi trường từ file .env
+require("dotenv").config();
 
 const Web3 = require("web3").Web3;
 const web3 = new Web3(process.env.API_URL);
 
 const { CONTRACT_ADDRESS } = require("../constant");
 
-// ABI của smart contract
 const nftABI = [
   {
     inputs: [
@@ -70,7 +69,6 @@ async function depositNFT() {
 
     const nftContract = new web3.eth.Contract(nftABI, tokenAddress);
 
-    // Kiểm tra chủ sở hữu NFT
     const owner = await nftContract.methods.ownerOf(tokenId).call();
     console.log(`Current owner of NFT ${tokenId}: ${owner}`);
 
@@ -109,5 +107,4 @@ async function depositNFT() {
   }
 }
 
-// Chạy script
 depositNFT();

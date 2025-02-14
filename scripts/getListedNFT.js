@@ -1,11 +1,10 @@
-require("dotenv").config(); // Đọc biến môi trường từ file .env
+require("dotenv").config();
 
 const Web3 = require("web3").Web3;
 const web3 = new Web3(process.env.API_URL);
 
 const { CONTRACT_ADDRESS } = require("../constant");
 
-// ABI của contract chứa basketNFTForETH
 const assetExchangeABI = [
   {
     constant: true,
@@ -26,13 +25,12 @@ async function getListedNFTs() {
   try {
     console.log("🔹 Fetching listed NFTs...");
 
-    // Kết nối contract
     const assetExchangeContract = new web3.eth.Contract(
       assetExchangeABI,
       CONTRACT_ADDRESS.AssertExchange.address
     );
 
-    let nftCounter = 0; // Giả sử bắt đầu từ 0, cần kiểm tra giá trị thực tế từ contract
+    let nftCounter = 0;
     let listedNFTs = [];
 
     while (true) {
@@ -44,7 +42,7 @@ async function getListedNFTs() {
           !nft.tokenAddress ||
           nft.tokenAddress === "0x0000000000000000000000000000000000000000"
         ) {
-          break; // Nếu gặp slot rỗng, kết thúc vòng lặp
+          break;
         }
 
         listedNFTs.push({
@@ -73,5 +71,4 @@ async function getListedNFTs() {
   }
 }
 
-// Chạy script
 getListedNFTs();

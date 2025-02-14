@@ -2,7 +2,6 @@ const { Web3 } = require("web3");
 const web3 = new Web3("http://127.0.0.1:7545"); // Kết nối Ganache
 const { USER_ADDRESS, CONTRACT_ADDRESS } = require("../constant");
 
-// ABI của AssetExchange (chứa buyPotatoByNFT và basketPotatoForNFT)
 const assetExchangeABI = [
   {
     constant: false,
@@ -51,13 +50,12 @@ async function buyPotato() {
       `🔹 Buying Potato in basket with ID = ${basketId} from address: ${buyerAddress}...`
     );
 
-    // 🔗 Kết nối contract
     const assetExchangeContract = new web3.eth.Contract(
       assetExchangeABI,
       CONTRACT_ADDRESS.AssertExchange.address
     );
 
-    // Kiểm tra mục basketPotatoForNFT có tồn tại không
+    // Check basket
     const item = await assetExchangeContract.methods
       .basketPotatoForNFT(basketId)
       .call();
@@ -75,7 +73,6 @@ async function buyPotato() {
     console.log(`Token Id is: ${tokenId}`);
     console.log(`Token amount is: ${item.amount}`);
 
-    // Kiểm tra quyền sở hữu NFT
     const nftABI = [
       {
         inputs: [
@@ -105,7 +102,6 @@ async function buyPotato() {
 
     console.log("✅ All conditions met. Processing transaction...");
 
-    // Thực hiện giao dịch
     await assetExchangeContract.methods.buyPotatoByNFT(basketId).send({
       from: buyerAddress,
       gas: 500000,
@@ -117,5 +113,4 @@ async function buyPotato() {
   }
 }
 
-// 🛠 Chạy script
 buyPotato();

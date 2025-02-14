@@ -1,10 +1,9 @@
-require("dotenv").config(); // Đọc biến môi trường từ file .env
+require("dotenv").config();
 const Web3 = require("web3").Web3;
 
 const web3 = new Web3(process.env.API_URL);
-const { USER_ADDRESS, CONTRACT_ADDRESS } = require("../constant"); // Đảm bảo bạn có địa chỉ contract
+const { USER_ADDRESS, CONTRACT_ADDRESS } = require("../constant");
 
-// ABI của AssetExchange (bao gồm buyNFT và kiểm tra NFT)
 const assetExchangeABI = [
   {
     constant: false,
@@ -76,7 +75,7 @@ async function buyNFT() {
     const sellerAddress = item.seller;
     const priceInWei = item.price;
 
-    // Kiểm tra số dư của người mua
+    // Check buyer's balance
     const buyerBalance = await assetExchangeContract.methods
       .balanceETH(buyerAddress)
       .call();
@@ -84,7 +83,7 @@ async function buyNFT() {
       throw new Error("Insufficient ETH balance to buy NFT!");
     }
 
-    // 📌 Kiểm tra số dư của người bán sau giao dịch
+    // check seller's balance before the transaction
     const sellerBalanceBefore = await assetExchangeContract.methods
       .balanceETH(sellerAddress)
       .call();
@@ -103,7 +102,7 @@ async function buyNFT() {
 
     console.log(`Successfully purchased NFT ${nftId}!`);
 
-    // Kiểm tra số dư của người bán sau giao dịch
+    // check seller's balance after the transaction
     const sellerBalanceAfter = await assetExchangeContract.methods
       .balanceETH(sellerAddress)
       .call();

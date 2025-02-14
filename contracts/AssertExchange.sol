@@ -8,13 +8,13 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
 
 contract AssertExchange is Ownable {
-    // Lưu trữ số dư của người dùng
-    mapping(address => uint256) public balanceETH;
+    // store user balances
+    mapping(address => uint256) public balanceETH; //user's ETH deposited balance
     mapping(address => mapping(address => uint256)) public balance20; // userAddress => (token => balance) user's  approved for contract
     mapping(address => mapping(uint256 => address)) public balance721; // tokenAddress => (tokenId => ownership)
-    mapping(address => mapping(address => uint256)) public userNFTCount; // Lưu số lượng NFT của mỗi user theo từng token
+    mapping(address => mapping(address => uint256)) public userNFTCount; // Number of NFTs owned by user for each token
 
-    // Basket structures
+    // Basket structures (store listed items)
     struct BasketNFTForETH {
         address tokenAddress;
         uint256 tokenId;
@@ -89,8 +89,8 @@ contract AssertExchange is Ownable {
 
     function depositNFT(address tokenAddress, uint256 tokenId) external {
         IERC721(tokenAddress).transferFrom(msg.sender, address(this), tokenId);
-        balance721[tokenAddress][tokenId] = msg.sender; // Lưu quyền sở hữu
-        userNFTCount[msg.sender][tokenAddress]++; // Tăng số lượng NFT của user cho tokenAddress
+        balance721[tokenAddress][tokenId] = msg.sender; // store ownership of deposited NFT
+        userNFTCount[msg.sender][tokenAddress]++; // increase number of NFTs owned by user
     }
 
     function listNFTForETH(
@@ -100,15 +100,13 @@ contract AssertExchange is Ownable {
     ) external {
         require(price > 0, "Price must be greater than zero");
 
-        // Kiểm tra nếu NFT đã được deposit trước đó
+        // Check the ownership of the NFT
         if (IERC721(tokenAddress).ownerOf(tokenId) == address(this)) {
-            // Nếu NFT đã được deposit, đảm bảo người gọi là chủ sở hữu ban đầu
             require(
                 balance721[tokenAddress][tokenId] == msg.sender,
                 "You are not the depositor"
             );
         } else {
-            // Nếu NFT chưa deposit, chuyển vào smart contract
             IERC721(tokenAddress).transferFrom(
                 msg.sender,
                 address(this),
@@ -116,12 +114,12 @@ contract AssertExchange is Ownable {
             );
         }
 
-        // Lấy tokenURI
+        // Get tokenURI
         string memory tokenURI = IERC721Metadata(tokenAddress).tokenURI(
             tokenId
         );
 
-        // Thêm vào danh sách niêm yết
+        // Update the basket
         basketNFTForETH[nftCounter] = BasketNFTForETH({
             tokenAddress: tokenAddress,
             tokenId: tokenId,
@@ -175,30 +173,6 @@ contract AssertExchange is Ownable {
         potatoCounter++;
     }
 
-    // function listETHForPotato(
-    //     uint256 amountETH,
-    //     address potatoAddress,
-    //     uint256 potatoAmount
-    // ) external payable {
-    //     require(potatoAmount > 0, "Token amount must be greater than zero");
-
-    //     basketETHForPotato[ethToPotatoCounter] = BasketETHForPotato({
-    //         amountETH: amountETH,
-    //         seller: msg.sender,
-    //         tokenAddress: potatoAddress,
-    //         tokenAmount: potatoAmount
-    //     });
-
-    //     emit ETHForPotatoListed(
-    //         ethToPotatoCounter,
-    //         msg.sender,
-    //         amountETH,
-    //         potatoAddress,
-    //         potatoAmount
-    //     );
-    //     ethToPotatoCounter++;
-    // }
-
     function buyNFT(uint256 id) external payable {
         BasketNFTForETH memory item = basketNFTForETH[id];
         require(item.tokenAddress != address(0), "NFT not found");
@@ -215,7 +189,7 @@ contract AssertExchange is Ownable {
             item.tokenId
         );
 
-        // Cập nhật số lượng NFT của người mua và người bán
+        // Update ownership and counter
         userNFTCount[item.seller][item.tokenAddress]--;
         userNFTCount[msg.sender][item.tokenAddress]++;
         balance721[item.tokenAddress][item.tokenId] = msg.sender;
@@ -260,19 +234,6 @@ contract AssertExchange is Ownable {
         emit PotatoForNFTPurchased(id, msg.sender);
     }
 
-    // function buyETHByPotato(uint256 id) external payable {
-    //     BasketETHForPotato memory item = basketETHForPotato[id];
-    //     require(item.tokenAddress != address(0), "Item not found");
-    //     IERC20(item.tokenAddress).transferFrom(
-    //         msg.sender,
-    //         item.seller,
-    //         item.tokenAmount
-    //     );
-    //     payable(msg.sender).transfer(msg.value);
-    //     delete basketETHForPotato[id];
-    //     emit ETHForTokenPurchased(id, msg.sender);
-    // }
-
     function withdrawETH(uint256 amount) external {
         require(balanceETH[msg.sender] >= amount, "Insufficient ETH balance");
         balanceETH[msg.sender] -= amount;
@@ -297,7 +258,7 @@ contract AssertExchange is Ownable {
             "You are not the owner of this NFT"
         );
 
-        // Xóa thông tin ownership trong mapping trước khi trả NFT lại
+        // Delede the ownership berfore transfering the NFT
         balance721[tokenAddress][tokenId] = address(0);
 
         IERC721(tokenAddress).transferFrom(address(this), msg.sender, tokenId);

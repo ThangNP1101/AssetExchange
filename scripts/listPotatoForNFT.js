@@ -1,11 +1,10 @@
-require("dotenv").config(); // Đọc biến môi trường từ file .env
+require("dotenv").config();
 
 const Web3 = require("web3").Web3;
 const web3 = new Web3(process.env.API_URL);
 
 const { CONTRACT_ADDRESS, USER_ADDRESS } = require("../constant");
 
-// ABI của AssetExchange (chứa listPotatoForNFT)
 const assetExchangeABI = [
   {
     inputs: [
@@ -53,7 +52,6 @@ async function listPotatoForNFT() {
       CONTRACT_ADDRESS.AssertExchange.address
     );
 
-    // Gửi giao dịch listPotatoForNFT
     await assetExchangeContract.methods
       .listPotatoForNFT(potatoAddress, amount, nftAddress, tokenId)
       .send({ from: userAddress, gas: 500000 });
@@ -69,5 +67,4 @@ async function listPotatoForNFT() {
   }
 }
 
-// Chạy script
 listPotatoForNFT();

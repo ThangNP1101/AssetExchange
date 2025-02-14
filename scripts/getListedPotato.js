@@ -1,11 +1,10 @@
-require("dotenv").config(); // Đọc biến môi trường từ file .env
+require("dotenv").config();
 
 const Web3 = require("web3").Web3;
 const web3 = new Web3(process.env.API_URL);
 
 const { CONTRACT_ADDRESS } = require("../constant");
 
-// ABI của contract chứa basketPotatoForNFT
 const assetExchangeABI = [
   {
     constant: true,
@@ -27,13 +26,12 @@ async function getListedPotato() {
   try {
     console.log("🔹 Fetching listed Potato-for-NFT swaps...");
 
-    // Kết nối contract
     const assetExchangeContract = new web3.eth.Contract(
       assetExchangeABI,
       CONTRACT_ADDRESS.AssertExchange.address
     );
 
-    let potatoCounter = 0; // Giả sử bắt đầu từ 0, cần kiểm tra giá trị thực tế từ contract
+    let potatoCounter = 0;
     let listedPotatoes = [];
     while (true) {
       try {
@@ -44,7 +42,7 @@ async function getListedPotato() {
           !potato.tokenAddress ||
           potato.tokenAddress === "0x0000000000000000000000000000000000000000"
         ) {
-          break; // Nếu gặp slot rỗng, kết thúc vòng lặp
+          break;
         }
 
         listedPotatoes.push({
@@ -75,5 +73,4 @@ async function getListedPotato() {
   }
 }
 
-// Chạy script
 getListedPotato();

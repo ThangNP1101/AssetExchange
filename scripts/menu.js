@@ -26,18 +26,18 @@ const mainMenu = async () => {
         { name: "Mint NFT", value: "mintNFT" },
         { name: "Deposit NFT", value: "depositNFT" },
         { name: "Deposit ETH", value: "depositETH" },
-        { name: "List NFT for ETH", value: "listNFTForETH" }, // Thêm chức năng list NFT
-        { name: "Get listed NFTs", value: "getListedNFT" }, // Thêm chức năng lấy danh sách NFT đã list
-        { name: "Buy NFT", value: "buyNFT" }, // Thêm chức năng mua NFT
-        { name: "Get token 20 for free", value: "getToken20" }, // Thêm chức năng nhận token 20 miễn phí
-        { name: "Check balance ETH", value: "checkBalanceETH" }, // Thêm chức năng kiểm tra số dư ETH
-        { name: "Check balance Potato", value: "checkBalance21" }, // Thêm chức năng kiểm tra số dư Potato
-        { name: "Withdraw ETH", value: "withdrawETH" }, // Thêm chức năng rút ETH
-        { name: "Check balance deposited ETH", value: "checkDepositedETH" }, // Thêm chức năng kiểm tra số dư ETH đã gửi
-        { name: "Deposit Potato", value: "depositPotato" }, // Thêm chức năng deposit potato
-        { name: "List Potato for NFT", value: "listPotatoForNFT" }, // Thêm chức năng list Potato
-        { name: "Get listed Potato", value: "getListedPotato" }, // Thêm chức năng lấy danh sách Potato đã list
-        { name: "Buy Potato", value: "buyPotato" }, // Thêm chức năng mua Potato
+        { name: "List NFT for ETH", value: "listNFTForETH" },
+        { name: "Get listed NFTs", value: "getListedNFT" },
+        { name: "Buy NFT", value: "buyNFT" },
+        { name: "Get token 20 for free", value: "getToken20" },
+        { name: "Check balance ETH", value: "checkBalanceETH" },
+        { name: "Check balance Potato", value: "checkBalance21" },
+        { name: "Withdraw ETH", value: "withdrawETH" },
+        { name: "Check balance deposited ETH", value: "checkDepositedETH" },
+        { name: "Deposit Potato", value: "depositPotato" },
+        { name: "List Potato for NFT", value: "listPotatoForNFT" },
+        { name: "Get listed Potato", value: "getListedPotato" },
+        { name: "Buy Potato", value: "buyPotato" },
         { name: "Deposit NFT", value: "depositNFT" },
         { name: "Exit", value: "exit" },
       ],
@@ -102,7 +102,6 @@ const mainMenu = async () => {
     const command = `node getListedNFT.js`;
     runScript(command);
   } else if (answers.script === "buyNFT") {
-    // Thêm chức năng mua NFT
     const buyNFTAnswers = await inquirer.prompt([
       {
         type: "input",

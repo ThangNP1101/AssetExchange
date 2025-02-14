@@ -1,9 +1,9 @@
-require("dotenv").config(); // Đọc biến môi trường từ file .env
+require("dotenv").config();
 
 const Web3 = require("web3").Web3;
 const web3 = new Web3(process.env.API_URL);
 
-const { CONTRACT_ADDRESS, USER_ADDRESS } = require("../constant"); // Chứa địa chỉ contract
+const { CONTRACT_ADDRESS, USER_ADDRESS } = require("../constant");
 
 const tokenABI = [
   {
@@ -47,9 +47,8 @@ async function buyToken() {
       tokenContractAddress
     );
 
-    // Giá mỗi token (0.0004 ETH = 400000000000000 wei)
     const PRICE_PER_TOKEN = BigInt(web3.utils.toWei("0.0004", "ether"));
-    const totalCost = PRICE_PER_TOKEN * tokenAmount; // Tổng số ETH cần gửi
+    const totalCost = PRICE_PER_TOKEN * tokenAmount;
 
     console.log(
       `Buying ${tokenAmount} Token21 for ${web3.utils.fromWei(
@@ -58,7 +57,6 @@ async function buyToken() {
       )} ETH...`
     );
 
-    // Kiểm tra số dư ETH của người mua trước khi gửi giao dịch
     const userBalance = await web3.eth.getBalance(userAddress);
     if (BigInt(userBalance) < totalCost) {
       throw new Error(
@@ -72,7 +70,6 @@ async function buyToken() {
       );
     }
 
-    // Gửi giao dịch mua token
     const tx = await contractInstance.methods.buyToken(tokenAmount).send({
       from: userAddress,
       value: totalCost.toString(),
@@ -82,7 +79,6 @@ async function buyToken() {
     console.log(`✅ Successfully bought ${tokenAmount} Token21!`);
     console.log(`🔗 Transaction Hash: ${tx.transactionHash}`);
 
-    // Kiểm tra số dư Token21 sau khi mua
     const newBalance = await contractInstance.methods
       .balanceOf(userAddress)
       .call();
@@ -95,5 +91,4 @@ async function buyToken() {
   }
 }
 
-// Chạy script
 buyToken();

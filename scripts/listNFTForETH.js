@@ -1,11 +1,10 @@
-require("dotenv").config(); // Đọc biến môi trường từ file .env
+require("dotenv").config();
 
 const Web3 = require("web3").Web3;
 const web3 = new Web3(process.env.API_URL);
 
 const { CONTRACT_ADDRESS, USER_ADDRESS } = require("../constant");
 
-// ABI của AssetExchange (chứa listNFTForETH)
 const assetExchangeABI = [
   {
     constant: false,
@@ -54,7 +53,6 @@ async function listNFT() {
       CONTRACT_ADDRESS.AssertExchange.address
     );
 
-    // Listing NFT trên marketplace
     console.log(`🔹 Listing NFT ${tokenId} for sale at ${priceInETH} ETH...`);
     await assetExchangeContract.methods
       .listNFTForETH(tokenAddress, tokenId, priceInWei)
