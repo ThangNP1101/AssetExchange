@@ -1,5 +1,5 @@
 # Sequence Diagram
 
-Here is the link to the [Sequence Diagram PDF](sequence_diagram.pdf).
+![Sequence Diagram](sequence_diagram_thumbnail.png)
 
-You can click on the link to view the diagram.
+You can download the full diagram from [here](sequence_diagram.pdf).
