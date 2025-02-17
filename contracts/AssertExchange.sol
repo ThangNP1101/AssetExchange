@@ -175,6 +175,7 @@ contract AssertExchange is Ownable, IAssetExchange {
         require(amount > 0, "Amount must be greater than zero");
         require(amount <= MAX_AMOUNT, "Amount exceeds maximum limit");
         require(tokenAddress != address(0), "Invalid token address");
+        require(nftAddress != address(0), "Invalid NFT address");
         require(
             balance20[tokenAddress][msg.sender] >= amount,
             "Insufficient balance"
