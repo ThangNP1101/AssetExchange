@@ -6,8 +6,9 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
+import "./interfaces/IAssetExchange.sol"; //import interface
 
-contract AssertExchange is Ownable {
+contract AssertExchange is Ownable, IAssetExchange {
     uint256 public constant MAX_PRICE = 1_000_000 ether;
     uint256 public constant MAX_AMOUNT = type(uint256).max / (10 ** 18);
     // store user balances
