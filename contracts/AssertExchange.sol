@@ -8,6 +8,8 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
 
 contract AssertExchange is Ownable {
+    uint256 public constant MAX_PRICE = 1_000_000 ether;
+    uint256 public constant MAX_AMOUNT = type(uint256).max / (10 ** 18);
     // store user balances
     mapping(address => uint256) public balanceETH; //user's ETH deposited balance
     mapping(address => mapping(address => uint256)) public balance20; // userAddress => (token => balance) user's  approved for contract
@@ -79,11 +81,14 @@ contract AssertExchange is Ownable {
 
     function depositPotato(address tokenAddress, uint256 amount) external {
         require(amount > 0, "Deposit amount must be greater than zero");
-        IERC20(tokenAddress).transferFrom(
+        require(amount <= MAX_AMOUNT, "Deposit amount exceeds maximum limit");
+        bool success = IERC20(tokenAddress).transferFrom(
             msg.sender,
             address(this),
             amount * 10 ** 18
         );
+        require(success, "Token transfer failed");
+
         balance20[tokenAddress][msg.sender] += amount * 10 ** 18;
     }
 
@@ -99,6 +104,9 @@ contract AssertExchange is Ownable {
         uint256 price
     ) external {
         require(price > 0, "Price must be greater than zero");
+
+        // Check if the price exceeds the maximum allowable price
+        require(price <= MAX_PRICE, "Price exceeds maximum limit");
 
         // Check the ownership of the NFT
         if (IERC721(tokenAddress).ownerOf(tokenId) == address(this)) {
@@ -181,6 +189,13 @@ contract AssertExchange is Ownable {
             "Insufficient ETH balance"
         );
 
+        // Update ownership and counter
+        userNFTCount[item.seller][item.tokenAddress]--;
+        userNFTCount[msg.sender][item.tokenAddress]++;
+        balance721[item.tokenAddress][item.tokenId] = msg.sender;
+
+        delete basketNFTForETH[id];
+
         balanceETH[msg.sender] -= item.price;
         balanceETH[item.seller] += item.price;
         IERC721(item.tokenAddress).transferFrom(
@@ -188,13 +203,6 @@ contract AssertExchange is Ownable {
             msg.sender,
             item.tokenId
         );
-
-        // Update ownership and counter
-        userNFTCount[item.seller][item.tokenAddress]--;
-        userNFTCount[msg.sender][item.tokenAddress]++;
-        balance721[item.tokenAddress][item.tokenId] = msg.sender;
-
-        delete basketNFTForETH[id];
 
         emit NFTPurchased(id, msg.sender);
     }
@@ -223,13 +231,13 @@ contract AssertExchange is Ownable {
             "Contract does not have enough tokens"
         );
 
-        IERC20(item.tokenAddress).transfer(msg.sender, item.amount);
-
         userNFTCount[item.seller][item.nftAddress]++;
         userNFTCount[msg.sender][item.nftAddress]--;
         balance721[item.nftAddress][item.tokenId] = item.seller;
 
         delete basketPotatoForNFT[id];
+
+        IERC20(item.tokenAddress).transfer(msg.sender, item.amount);
 
         emit PotatoForNFTPurchased(id, msg.sender);
     }
