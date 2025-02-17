@@ -46,7 +46,6 @@ contract AssertExchange is Ownable {
 
     uint256 private nftCounter;
     uint256 private potatoCounter;
-    uint256 private ethToPotatoCounter;
 
     event NFTForEthListed(
         uint256 id,
@@ -73,15 +72,29 @@ contract AssertExchange is Ownable {
     event NFTPurchased(uint256 id, address buyer);
     event PotatoForNFTPurchased(uint256 id, address buyer);
     event ETHForTokenPurchased(uint256 id, address buyer);
+    event ETHDeposited(address depositor, uint256 amount);
+    event PotatoDeposited(
+        address depositor,
+        address tokenAddress,
+        uint256 amount
+    );
+    event NFTDeposited(
+        address depositor,
+        address tokenAddress,
+        uint256 tokenId
+    );
 
     function depositETH() external payable {
         require(msg.value > 0, "Deposit amount must be greater than zero");
         balanceETH[msg.sender] += msg.value;
+        emit ETHDeposited(msg.sender, msg.value);
     }
 
     function depositPotato(address tokenAddress, uint256 amount) external {
         require(amount > 0, "Deposit amount must be greater than zero");
         require(amount <= MAX_AMOUNT, "Deposit amount exceeds maximum limit");
+        require(tokenAddress != address(0), "Invalid token address");
+
         bool success = IERC20(tokenAddress).transferFrom(
             msg.sender,
             address(this),
@@ -90,12 +103,15 @@ contract AssertExchange is Ownable {
         require(success, "Token transfer failed");
 
         balance20[tokenAddress][msg.sender] += amount * 10 ** 18;
+        emit PotatoDeposited(msg.sender, tokenAddress, amount);
     }
 
     function depositNFT(address tokenAddress, uint256 tokenId) external {
+        require(tokenAddress != address(0), "Invalid token address");
         IERC721(tokenAddress).transferFrom(msg.sender, address(this), tokenId);
         balance721[tokenAddress][tokenId] = msg.sender; // store ownership of deposited NFT
         userNFTCount[msg.sender][tokenAddress]++; // increase number of NFTs owned by user
+        emit NFTDeposited(msg.sender, tokenAddress, tokenId);
     }
 
     function listNFTForETH(
@@ -107,6 +123,8 @@ contract AssertExchange is Ownable {
 
         // Check if the price exceeds the maximum allowable price
         require(price <= MAX_PRICE, "Price exceeds maximum limit");
+
+        require(tokenAddress != address(0), "Invalid token address");
 
         // Check the ownership of the NFT
         if (IERC721(tokenAddress).ownerOf(tokenId) == address(this)) {
@@ -136,6 +154,8 @@ contract AssertExchange is Ownable {
             seller: msg.sender
         });
 
+        nftCounter++;
+
         emit NFTForEthListed(
             nftCounter,
             msg.sender,
@@ -152,6 +172,12 @@ contract AssertExchange is Ownable {
         uint256 tokenId
     ) external {
         require(amount > 0, "Amount must be greater than zero");
+        require(amount <= MAX_AMOUNT, "Amount exceeds maximum limit");
+        require(tokenAddress != address(0), "Invalid token address");
+        require(
+            balance20[tokenAddress][msg.sender] >= amount,
+            "Insufficient balance"
+        );
 
         if (
             IERC20(tokenAddress).balanceOf(address(this)) >= amount ||
@@ -165,7 +191,7 @@ contract AssertExchange is Ownable {
                 tokenId: tokenId
             });
         } else {
-            revert("Something went wrong in line 149");
+            revert("Listing failed");
         }
 
         balance20[tokenAddress][msg.sender] -= amount;
@@ -220,6 +246,11 @@ contract AssertExchange is Ownable {
             "Contract does not own the NFT"
         );
 
+        userNFTCount[item.seller][item.nftAddress]++;
+        userNFTCount[msg.sender][item.nftAddress]--;
+        balance721[item.nftAddress][item.tokenId] = item.seller;
+        delete basketPotatoForNFT[id];
+
         IERC721(item.nftAddress).transferFrom(
             msg.sender,
             item.seller,
@@ -230,12 +261,6 @@ contract AssertExchange is Ownable {
             IERC20(item.tokenAddress).balanceOf(address(this)) >= item.amount,
             "Contract does not have enough tokens"
         );
-
-        userNFTCount[item.seller][item.nftAddress]++;
-        userNFTCount[msg.sender][item.nftAddress]--;
-        balance721[item.nftAddress][item.tokenId] = item.seller;
-
-        delete basketPotatoForNFT[id];
 
         IERC20(item.tokenAddress).transfer(msg.sender, item.amount);
 
@@ -249,6 +274,7 @@ contract AssertExchange is Ownable {
     }
 
     function withdrawERC20(address tokenAddress, uint256 amount) external {
+        require(tokenAddress != address(0), "Invalid token address");
         require(
             balance20[tokenAddress][msg.sender] >= amount,
             "Insufficient token balance"
@@ -261,6 +287,7 @@ contract AssertExchange is Ownable {
     }
 
     function withdrawERC721(address tokenAddress, uint256 tokenId) external {
+        require(tokenAddress != address(0), "Invalid token address");
         require(
             balance721[tokenAddress][tokenId] == msg.sender,
             "You are not the owner of this NFT"
