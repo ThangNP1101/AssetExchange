@@ -1,7 +1,4 @@
-# Sequence Diagram
-
-![Sequence Diagram](sequence_diagram.png)
-
-# Flow Diagram
-
-![Flow Diagram](FlowDiagram.png)
+<p float="left">
+  <img src="sequence_diagram.png" width="45%" />
+  <img src="FlowDiagram.png" width="45%" />
+</p>
